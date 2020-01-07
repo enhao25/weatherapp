@@ -1,6 +1,6 @@
 {
-  "homepage": "https://enhao25.github.io/catfriends",
-  "name": "robofriends",
+  "homepage": "https://enhao25.github.io/weatherapp",
+  "name": "weatherapp",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -36,6 +36,6 @@
     ]
   },
   "devDependencies": {
-    "gh-pages": "^2.1.1"
+    "gh-pages": "^2.2.0"
   }
 }

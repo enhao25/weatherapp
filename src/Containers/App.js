@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Cardlist from '../Components/Cardlist'
 import SearchBox from '../Components/SearchBox'
 import Scroll from '../Components/Scroll'
+import ErrorBoundary from '../Components/ErrorBoundary'
 import './App.css'
 
 class App extends Component {
@@ -10,9 +11,19 @@ class App extends Component {
     constructor(){
         super()
         this.state = {
-            cats: [],
-            searchfield: ''
+            searchfield: '',
+            sgweather: []
         }
+    }
+
+    getWeatherDetails = (weatherData) => {
+        var Stations = weatherData['metadata']['stations']
+        var Weather = weatherData['items'][0]['readings']
+        
+        for( var index in Stations ){
+            Stations[index]["weather"] = Weather[index]['value']
+        }
+        this.setState({ sgweather: Stations })
     }
 
     // Function
@@ -25,20 +36,23 @@ class App extends Component {
 
     // Render which is mandatory for a class
     render(){
-        const { cats, searchfield } = this.state
-        const filteredCats = cats.filter(cat =>{
-            return cat.name.toLocaleLowerCase().includes(searchfield.toLocaleLowerCase())
+        const { searchfield, sgweather  } = this.state
+
+        const filteredWeather = sgweather.filter(place =>{
+            return place.name.toLocaleLowerCase().includes(searchfield.toLocaleLowerCase())
         }) 
-        if (cats.length === 0){
+        if (sgweather.length === 0){
             return <h1>Loading</h1>
         }
         else{
             return (
                 <div className="tc">
-                    <h1 className="f2">CatFriends</h1>
+                    <h1 className="f2">Weather Search</h1>
                     <SearchBox searchChange = {this.onSearchChange} />
                     <Scroll>
-                        <Cardlist cats={filteredCats} />
+                        <ErrorBoundary>
+                            <Cardlist weathers={filteredWeather} />
+                        </ErrorBoundary>
                     </Scroll>
                 </div>
             )
@@ -46,10 +60,10 @@ class App extends Component {
     }
 
     componentDidMount(){
-        // Fetch helps us to get from http, then, get the response and return it, then set the state to cats : users
-        fetch('https://jsonplaceholder.typicode.com/users')
+        
+        fetch('https://api.data.gov.sg/v1/environment/air-temperature')
             .then(response => {return response.json()})
-            .then(users=> {{this.setState({cats: users})}})
+            .then(data => this.getWeatherDetails(data))
     }
     
 }
